@@ -2,69 +2,19 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { supabase } from '../utils/supabase/client';
+import { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
+
+interface Payload {
+     new: {
+      image: string;
+      command: string;
+     }
+    
+  }
 
 const Player = () => {
-  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string>("movie.mp4");
   const videoRef = useRef<HTMLVideoElement>(null);
-
-//   useEffect(() => {
-//     const fetchVideoUrl = async () => {
-//       const { data, error } = await supabase
-//         .from('player')
-//         .select('image')
-//         .eq('id', 15)
-//         .single();
-
-//       if (error) {
-//         console.error('Error fetching video URL:', error);
-//         return;
-//       }
-
-//       setVideoUrl(data?.image);
-//     };
-
-//     fetchVideoUrl();
-//     console.log(videoUrl)
-//     const subscription = supabase
-//       .from('player')
-//       .on('UPDATE', payload  => {
-//         const { url, command } = payload.new;
-//         if (url) {
-//           setVideoUrl(url);
-//         }
-
-//         if (command && videoRef.current) {
-//           switch (command) {
-//             case 'play':
-//               videoRef.current.play();
-//               break;
-//             case 'pause':
-//               videoRef.current.pause();
-//               break;
-//             case 'fullscreen':
-//               if (videoRef.current.requestFullscreen) {
-//                 videoRef.current.requestFullscreen();
-//               } else if ((videoRef.current as any).mozRequestFullScreen) {
-//                 (videoRef.current as any).mozRequestFullScreen();
-//               } else if ((videoRef.current as any).webkitRequestFullscreen) {
-//                 (videoRef.current as any).webkitRequestFullscreen();
-//               } else if ((videoRef.current as any).msRequestFullscreen) {
-//                 (videoRef.current as any).msRequestFullscreen();
-//               }
-//               break;
-//           }
-//         }
-//       })
-//       .subscribe();
-
-//     return () => {
-//       supabase.removeAllChannels();
-//     };
-//   }, []);
-
-//   if (!videoUrl) {
-//     return <div>Loading...</div>;
-//   }
 
 // const handlePlayPause = () => {
 //     const video = videoRef.current;
@@ -93,45 +43,21 @@ const Player = () => {
 //     }
 //   };
 
-// const triggerChange = (videoUrl, command) => {
-//     setVideoUrl(videoUrl);
-//     if (command && videoRef.current) {
-//                   switch (command) {
-//                     case 'play':
-//                       videoRef.current.play();
-//                       break;
-//                     case 'pause':
-//                       videoRef.current.pause();
-//                       break;
-//                     case 'fullscreen':
-//                       if (videoRef.current.requestFullscreen) {
-//                         videoRef.current.requestFullscreen();
-//                       } else if ((videoRef.current as any).mozRequestFullScreen) {
-//                         (videoRef.current as any).mozRequestFullScreen();
-//                       } else if ((videoRef.current as any).webkitRequestFullscreen) {
-//                         (videoRef.current as any).webkitRequestFullscreen();
-//                       } else if ((videoRef.current as any).msRequestFullscreen) {
-//                         (videoRef.current as any).msRequestFullscreen();
-//                       }
-//                       break;
-//                   }
-//                 }
-//               }
-
-
 
 const channel = supabase
     .channel('player')
-    .on(
-        'postgres_changes',
+    .on( 
+        "postgres_changes",
         {
             event: '*',
             schema: 'public',
             table: 'player',
         },
-        (payload) => {
+        // : RealtimePostgresChangesPayload
+        (payload: RealtimePostgresChangesPayload<{ image: string }>) => {
+            const url = payload.new.image;
             console.log('Change received!', payload);
-            setVideoUrl(payload.new.image);
+            setVideoUrl(url);
             // handlePlayPause();
             // triggerChange(payload.new.image, payload.new.command);
 
