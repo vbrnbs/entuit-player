@@ -54,7 +54,7 @@ const channel = supabase
             table: 'player',
         },
         // : RealtimePostgresChangesPayload
-        (payload: RealtimePostgresChangesPayload<{ image: string }>) => {
+        (payload: RealtimePostgresChangesPayload<any>) => {
             const url = payload.new.image;
             console.log('Change received!', payload);
             setVideoUrl(url);
